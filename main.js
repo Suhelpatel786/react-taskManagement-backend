@@ -53,4 +53,55 @@ const SignUpData = mongoose.model("SignUpData", signUpSchema);
 // create task
 const CreateTaskData = mongoose.model("CreateTaskData", createTaskSchema);
 
+//sign - up api endpoint
+app.post("/signup", async (req, res) => {
+  try {
+    console.log(req.body);
+    const { userName, password, email } = req.body;
+
+    //check that email exist or not
+    const isEmailExist = await SignUpData.findOne({ email });
+
+    console.log(isEmailExist);
+
+    if (isEmailExist) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
+    //const create new user
+    const newUser = new SignUpData({ userName, password, email });
+
+    await newUser.save();
+
+    res.status(201).json({ message: "User registred successfully" });
+  } catch (error) {
+    console.log("Error registering user : ", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  console.log(req.body);
+  try {
+    const { email, password } = req.body;
+
+    const user = await SignUpData.findOne({ email });
+
+    if (!user) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    // Check if the provided password matches the stored password
+    if (password !== user.password) {
+      return res.status(400).json({ error: "Invalid email or password" });
+    }
+
+    // Login successful
+    res.status(200).json({ message: "Login successful", data: user });
+  } catch (error) {
+    console.log("Login error:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server is running on ${PORT} number`));
