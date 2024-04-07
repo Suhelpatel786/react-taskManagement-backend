@@ -139,6 +139,31 @@ app.get("/task/:status", async (req, res) => {
   }
 });
 
+app.put("/user/update/:id", async (req, res) => {
+  const { id } = req.params;
+
+  const { userName, email, password } = req.body;
+
+  try {
+    const user = await SignUpData.findByIdAndUpdate(
+      id,
+      { userName: userName, email: email, password: password },
+      { new: true }
+    );
+
+    if (!user) {
+      res.status(400).json({ error: "User not found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Detail Updated Successfully", data: user });
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.put("/task/:id/:status", async (req, res) => {
   const { id } = req.params;
   const { status } = req.params;
@@ -172,6 +197,22 @@ app.delete("/user/delete/:id", async (req, res) => {
     }
 
     res.status(200).json({ message: "User Deleted Successfully" });
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.delete("/delete/task/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const task = await CreateTaskData.findByIdAndDelete(id);
+
+    if (!task) {
+      return res.status(400).json({ error: "Task Deleted Successfullly" });
+    }
+    res.status(200).json({ message: "Task deleted successfully" });
   } catch (error) {
     console.error("Error updating task status:", error);
     res.status(500).json({ error: "Internal server error" });
