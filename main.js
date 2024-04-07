@@ -161,4 +161,21 @@ app.put("/task/:id/:status", async (req, res) => {
   }
 });
 
+app.delete("/user/delete/:id", async (req, res) => {
+  const { id } = req.params;
+
+  try {
+    const user = await SignUpData.findByIdAndDelete(id);
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({ message: "User Deleted Successfully" });
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server is running on ${PORT} number`));
