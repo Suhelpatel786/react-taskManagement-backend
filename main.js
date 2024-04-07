@@ -104,4 +104,61 @@ app.post("/login", async (req, res) => {
   }
 });
 
+// Endpoint to create a new task
+app.post("/create/task", async (req, res) => {
+  try {
+    const { title, content } = req.body;
+
+    console.log({ title, content });
+    // Create a new task with default status "TODO"
+    const newTask = new CreateTaskData({
+      title,
+      content,
+      status: "TODO",
+    });
+
+    // Save the new task to the database
+    const data = await newTask.save();
+
+    res.status(201).json({ message: "Task created successfully", data: data });
+  } catch (error) {
+    console.error("Error creating task:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.get("/task/:status", async (req, res) => {
+  const { status } = req.params;
+
+  try {
+    const tasks = await CreateTaskData.find({ status });
+    res.status(200).json(tasks);
+  } catch (error) {
+    console.error("Error fetching tasks:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
+app.put("/task/:id/:status", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.params;
+
+  try {
+    const updateTask = await CreateTaskData.findByIdAndUpdate(
+      id,
+      { status },
+      { new: true }
+    );
+
+    if (!updateTask) {
+      return res.status(404).json({ error: "Task not found" });
+    }
+
+    res.status(200).json({ message: "Task status updated successfully" });
+  } catch (error) {
+    console.error("Error updating task status:", error);
+    res.status(500).json({ error: "Internal server error" });
+  }
+});
+
 app.listen(PORT, () => console.log(`Server is running on ${PORT} number`));
