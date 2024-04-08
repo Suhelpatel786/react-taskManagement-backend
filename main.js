@@ -127,6 +127,29 @@ app.post("/create/task", async (req, res) => {
   }
 });
 
+app.put("/task/status/:id", async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+  try {
+    const updateStatus = await CreateTaskData.findByIdAndUpdate(
+      id,
+      { status: status },
+      { new: true }
+    );
+
+    if (!updateStatus) {
+      res.status(400).json({ error: "Task notfound" });
+    }
+    res.status(200).json({
+      message: "Task status updated successfully",
+      data: updateStatus,
+    });
+  } catch (error) {
+    console.log("TASK STATUS UPDATED ERROR", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+});
+
 app.get("/task/:status", async (req, res) => {
   const { status } = req.params;
 
